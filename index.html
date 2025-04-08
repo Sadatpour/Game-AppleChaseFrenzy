@@ -5,7 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apple Chase Frenzy</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        // Error handling
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error("Error captured:", message, "at", source, "line:", lineno);
+            alert("Error detected! Check the console for details.");
+            return true;
+        };
+    </script>
 </head>
 <body>
     <div class="game-container">
@@ -17,46 +25,66 @@
             </div>
         </div>
         
-        <div class="game-area">
-            <canvas id="gameCanvas"></canvas>
+        <div class="game-layout">
+            <div class="high-scores desktop-only">
+                <h3>High Scores</h3>
+                <div id="highScores" class="scores-list"></div>
+            </div>
             
-            <div id="gameOverScreen" class="game-over-screen">
-                <h2>Game Over!</h2>
-                <p>Your score: <span id="finalScore">0</span></p>
-                <button id="restartButton" class="btn">Play Again</button>
-                <div class="history-container">
-                    <h3>Recent Games</h3>
-                    <div id="gameHistory" class="game-history"></div>
+            <div class="game-area">
+                <canvas id="gameCanvas"></canvas>
+                
+                <div id="gameOverScreen" class="game-over-screen">
+                    <h2>Game Over!</h2>
+                    <p>Your score: <span id="finalScore">0</span></p>
+                    <button id="restartButton" class="btn">Play Again</button>
+                </div>
+                
+                <div id="startScreen" class="start-screen">
+                    <h2>Apple Chase Frenzy</h2>
+                    <p>Eat apples to grow and earn points!</p>
+                    <button id="startButton" class="btn">Start Game</button>
+                    <div class="controls-info">
+                        <p>Controls:</p>
+                        <p>Use arrow keys/WASD to move</p>
+                        <p>Or click where you want to go</p>
+                        <p>Or use touch controls on mobile</p>
+                    </div>
                 </div>
             </div>
             
-            <div id="startScreen" class="start-screen">
-                <h2>Apple Chase Frenzy</h2>
-                <p>Eat apples to grow and earn points!</p>
-                <button id="startButton" class="btn">Start Game</button>
-                <div class="controls-info">
-                    <p>Controls:</p>
-                    <p>Use arrow keys/WASD to move</p>
-                    <p>Or click where you want to go</p>
-                    <p>Or use touch controls on mobile</p>
-                </div>
+            <div class="game-logs desktop-only">
+                <h3>Recent Games</h3>
+                <div id="gameHistory" class="game-history"></div>
             </div>
         </div>
         
         <div class="mobile-controls">
-            <button id="upButton" class="control-btn">↑</button>
+            <button id="upButton" class="control-btn">▲</button>
             <div class="horizontal-controls">
-                <button id="leftButton" class="control-btn">←</button>
-                <button id="rightButton" class="control-btn">→</button>
+                <button id="leftButton" class="control-btn">◀</button>
+                <button id="rightButton" class="control-btn">▶</button>
             </div>
-            <button id="downButton" class="control-btn">↓</button>
+            <button id="downButton" class="control-btn">▼</button>
+        </div>
+        
+        <div class="scores-container">
+            <div class="high-scores mobile-only">
+                <h3>High Scores</h3>
+                <div id="highScoresMobile" class="scores-list"></div>
+            </div>
+            
+            <div class="game-logs mobile-only">
+                <h3>Recent Games</h3>
+                <div id="gameHistoryMobile" class="game-history"></div>
+            </div>
         </div>
 
         <div class="game-footer">
             <p>Created by: Mojtaba S Sadatpour</p>
             <div class="footer-buttons">
                 <a href="https://buymeacoffee.com/sadatpour" target="_blank" class="coffee-btn">☕ Buy me a coffee</a>
-                <a href="mailto:sadatpour.web@gmail.com" class="contact-btn">✉️ Contact Me</a>
+                <a href="mailto:sadatpour.web@gmail.com" target="_blank"  class="contact-btn">✉️ Contact Me</a>
             </div>
         </div>
     </div>

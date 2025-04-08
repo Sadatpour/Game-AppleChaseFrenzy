@@ -2,6 +2,9 @@
 const GRID_SIZE = 20;
 const INITIAL_SNAKE_LENGTH = 3;
 const GAME_SPEED = 150; // milliseconds between moves
+const MAX_HISTORY = 10;
+const MAX_HIGH_SCORES_DESKTOP = 10;
+const MAX_HIGH_SCORES_MOBILE = 5;
 
 // Game variables
 let canvas, ctx;
@@ -13,27 +16,80 @@ let score = 0;
 let gameInterval;
 let gameRunning = false;
 let gameHistory = [];
-const MAX_HISTORY = 10;
+let highScores = [];
+let isMobileView = false;
 
 // DOM elements
-const scoreElement = document.getElementById('score');
-const finalScoreElement = document.getElementById('finalScore');
-const gameOverScreen = document.getElementById('gameOverScreen');
-const startScreen = document.getElementById('startScreen');
-const gameHistoryElement = document.getElementById('gameHistory');
-const restartButton = document.getElementById('restartButton');
-const startButton = document.getElementById('startButton');
-const eatSound = document.getElementById('eatSound');
-const gameOverSound = document.getElementById('gameOverSound');
-
-// Mobile control buttons
-const upButton = document.getElementById('upButton');
-const downButton = document.getElementById('downButton');
-const leftButton = document.getElementById('leftButton');
-const rightButton = document.getElementById('rightButton');
+let scoreElement, finalScoreElement, gameOverScreen, startScreen;
+let gameHistoryElement, gameHistoryMobileElement;
+let highScoresElement, highScoresMobileElement;
+let restartButton, startButton, eatSound, gameOverSound;
+let upButton, downButton, leftButton, rightButton;
 
 // Initialize the game
 function init() {
+    console.log("Initializing game...");
+    
+    // Display initialization status to user
+    const statusMsg = document.createElement('div');
+    statusMsg.textContent = "Game initializing...";
+    statusMsg.style.position = "fixed";
+    statusMsg.style.bottom = "10px";
+    statusMsg.style.right = "10px";
+    statusMsg.style.background = "rgba(0,0,0,0.7)";
+    statusMsg.style.color = "white";
+    statusMsg.style.padding = "5px 10px";
+    statusMsg.style.borderRadius = "5px";
+    statusMsg.style.zIndex = "9999";
+    document.body.appendChild(statusMsg);
+    
+    setTimeout(() => {
+        statusMsg.textContent = "Game initialized!";
+        setTimeout(() => {
+            document.body.removeChild(statusMsg);
+        }, 2000);
+    }, 1000);
+    
+    // Check if we're in mobile view
+    checkDeviceType();
+    
+    // Initialize DOM elements
+    scoreElement = document.getElementById('score');
+    finalScoreElement = document.getElementById('finalScore');
+    gameOverScreen = document.getElementById('gameOverScreen');
+    startScreen = document.getElementById('startScreen');
+    gameHistoryElement = document.getElementById('gameHistory');
+    gameHistoryMobileElement = document.getElementById('gameHistoryMobile');
+    highScoresElement = document.getElementById('highScores');
+    highScoresMobileElement = document.getElementById('highScoresMobile');
+    restartButton = document.getElementById('restartButton');
+    startButton = document.getElementById('startButton');
+    eatSound = document.getElementById('eatSound');
+    gameOverSound = document.getElementById('gameOverSound');
+    
+    // Mobile control buttons
+    upButton = document.getElementById('upButton');
+    downButton = document.getElementById('downButton');
+    leftButton = document.getElementById('leftButton');
+    rightButton = document.getElementById('rightButton');
+    
+    // Check if all DOM elements are found
+    if (!document.getElementById('gameCanvas')) console.error("gameCanvas not found");
+    if (!scoreElement) console.error("scoreElement not found");
+    if (!finalScoreElement) console.error("finalScoreElement not found");
+    if (!gameOverScreen) console.error("gameOverScreen not found");
+    if (!startScreen) console.error("startScreen not found");
+    if (!gameHistoryElement) console.error("gameHistoryElement not found");
+    if (!gameHistoryMobileElement) console.error("gameHistoryMobileElement not found");
+    if (!highScoresElement) console.error("highScoresElement not found");
+    if (!highScoresMobileElement) console.error("highScoresMobileElement not found");
+    if (!restartButton) console.error("restartButton not found");
+    if (!startButton) console.error("startButton not found");
+    if (!upButton) console.error("upButton not found");
+    if (!downButton) console.error("downButton not found");
+    if (!leftButton) console.error("leftButton not found");
+    if (!rightButton) console.error("rightButton not found");
+    
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
     
@@ -41,7 +97,7 @@ function init() {
     resizeCanvas();
     
     // Event listeners
-    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('resize', handleResize);
     document.addEventListener('keydown', handleKeyPress);
     
     // Mouse controls
@@ -97,11 +153,25 @@ function init() {
     restartButton.addEventListener('click', startGame);
     startButton.addEventListener('click', startGame);
     
-    // Load game history from local storage
+    // Load game history and high scores from local storage
     loadGameHistory();
+    loadHighScores();
     
     // Show start screen
     showStartScreen();
+}
+
+// Check device type and update view accordingly
+function checkDeviceType() {
+    isMobileView = window.innerWidth <= 1200;
+    console.log("Device type:", isMobileView ? "Mobile/Tablet" : "Desktop");
+}
+
+// Handle window resize
+function handleResize() {
+    checkDeviceType();
+    resizeCanvas();
+    updateHighScoresDisplay();
 }
 
 // Handle mouse click for direction control
@@ -374,6 +444,9 @@ function gameOver() {
     // Save game session
     saveGameSession();
     
+    // Update high scores
+    updateHighScores();
+    
     // Show game over screen
     gameOverScreen.style.display = 'flex';
 }
@@ -417,17 +490,114 @@ function loadGameHistory() {
 // Update history display
 function updateHistoryDisplay() {
     gameHistoryElement.innerHTML = '';
+    gameHistoryMobileElement.innerHTML = '';
     
     if (gameHistory.length === 0) {
         gameHistoryElement.innerHTML = '<p>No games played yet</p>';
+        gameHistoryMobileElement.innerHTML = '<p>No games played yet</p>';
         return;
     }
     
-    for (let i = 0; i < gameHistory.length; i++) {
+    // Determine how many history items to display based on device type
+    const maxHistory = isMobileView ? 5 : MAX_HISTORY;
+    const historyToShow = Math.min(gameHistory.length, maxHistory);
+    
+    for (let i = 0; i < historyToShow; i++) {
         const session = gameHistory[i];
         const p = document.createElement('p');
-        p.textContent = `Play #${i + 1} - Score: ${session.score}`;
+        p.textContent = `Score: ${session.score} - ${session.date}`;
         gameHistoryElement.appendChild(p);
+        
+        const pMobile = document.createElement('p');
+        pMobile.textContent = `Score: ${session.score} - ${session.date}`;
+        gameHistoryMobileElement.appendChild(pMobile);
+    }
+}
+
+// Load high scores from local storage
+function loadHighScores() {
+    const savedHighScores = localStorage.getItem('appleChaseFrenzyHighScores');
+    if (savedHighScores) {
+        highScores = JSON.parse(savedHighScores);
+        updateHighScoresDisplay();
+    }
+}
+
+// Update high scores
+function updateHighScores() {
+    // Add current score to high scores
+    highScores.push({
+        score: score,
+        date: new Date().toLocaleString()
+    });
+    
+    // Sort high scores in descending order
+    highScores.sort((a, b) => b.score - a.score);
+    
+    // Keep only the top scores based on device type
+    const maxScores = isMobileView ? MAX_HIGH_SCORES_MOBILE : MAX_HIGH_SCORES_DESKTOP;
+    if (highScores.length > maxScores) {
+        highScores = highScores.slice(0, maxScores);
+    }
+    
+    // Save to local storage
+    localStorage.setItem('appleChaseFrenzyHighScores', JSON.stringify(highScores));
+    
+    // Update display
+    updateHighScoresDisplay();
+}
+
+// Update high scores display
+function updateHighScoresDisplay() {
+    highScoresElement.innerHTML = '';
+    highScoresMobileElement.innerHTML = '';
+    
+    if (highScores.length === 0) {
+        highScoresElement.innerHTML = '<p>No high scores yet</p>';
+        highScoresMobileElement.innerHTML = '<p>No high scores yet</p>';
+        return;
+    }
+    
+    // Determine how many scores to display based on device type
+    const maxScores = isMobileView ? MAX_HIGH_SCORES_MOBILE : MAX_HIGH_SCORES_DESKTOP;
+    const scoresToShow = Math.min(highScores.length, maxScores);
+    
+    for (let i = 0; i < scoresToShow; i++) {
+        const score = highScores[i];
+        const p = document.createElement('p');
+        p.textContent = `#${i + 1}: ${score.score} - ${score.date}`;
+        highScoresElement.appendChild(p);
+        
+        const pMobile = document.createElement('p');
+        pMobile.textContent = `#${i + 1}: ${score.score} - ${score.date}`;
+        highScoresMobileElement.appendChild(pMobile);
+    }
+}
+
+// Update game history display
+function updateGameHistoryDisplay() {
+    gameHistoryElement.innerHTML = '';
+    gameHistoryMobileElement.innerHTML = '';
+    
+    if (gameHistory.length === 0) {
+        gameHistoryElement.innerHTML = '<p>No game history yet</p>';
+        gameHistoryMobileElement.innerHTML = '<p>No game history yet</p>';
+        return;
+    }
+    
+    // Determine how many history items to display based on device type
+    const maxHistory = isMobileView ? 5 : MAX_HISTORY;
+    const historyToShow = Math.min(gameHistory.length, maxHistory);
+    
+    for (let i = 0; i < historyToShow; i++) {
+        const game = gameHistory[i];
+        const p = document.createElement('p');
+        p.textContent = `Score: ${game.score} - ${game.date}`;
+        gameHistoryElement.appendChild(p);
+        
+        const pMobile = document.createElement('p');
+        pMobile.textContent = `Score: ${game.score} - ${game.date}`;
+        gameHistoryMobileElement.appendChild(pMobile);
     }
 }
 
