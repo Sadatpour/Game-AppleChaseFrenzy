@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Chase Frenzy</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>Apple Chase Frenzy</h1>
+            <div class="score-container">
+                <span>Score: </span>
+                <span id="score">0</span>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <canvas id="gameCanvas"></canvas>
+            
+            <div id="gameOverScreen" class="game-over-screen">
+                <h2>Game Over!</h2>
+                <p>Your score: <span id="finalScore">0</span></p>
+                <button id="restartButton" class="btn">Play Again</button>
+                <div class="history-container">
+                    <h3>Recent Games</h3>
+                    <div id="gameHistory" class="game-history"></div>
+                </div>
+            </div>
+            
+            <div id="startScreen" class="start-screen">
+                <h2>Apple Chase Frenzy</h2>
+                <p>Eat apples to grow and earn points!</p>
+                <button id="startButton" class="btn">Start Game</button>
+                <div class="controls-info">
+                    <p>Controls:</p>
+                    <p>Use arrow keys/WASD to move</p>
+                    <p>Or click where you want to go</p>
+                    <p>Or use touch controls on mobile</p>
+                </div>
+            </div>
+            
+            <div class="game-footer">
+                <p>Created by: Mojtaba S Sadatpour</p>
+            </div>
+        </div>
+        
+        <div class="mobile-controls">
+            <button id="upButton" class="control-btn">↑</button>
+            <div class="horizontal-controls">
+                <button id="leftButton" class="control-btn">←</button>
+                <button id="rightButton" class="control-btn">→</button>
+            </div>
+            <button id="downButton" class="control-btn">↓</button>
+        </div>
+    </div>
+    
+    <audio id="eatSound" src="sounds/eat.mp3" preload="auto"></audio>
+    <audio id="gameOverSound" src="sounds/gameover.mp3" preload="auto"></audio>
+    
+    <script src="js/game.js"></script>
+</body>
+</html> 
