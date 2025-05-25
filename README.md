@@ -3,7 +3,6 @@
 A modern twist on the classic snake game, built with HTML5, CSS3, and JavaScript.
 
 ## Credits
-
 - **Game Developer:** Mojyaba S. Sadatpour
 - **PRD Created by:** GROK
 - **Development Tool:** CURSOR AI
